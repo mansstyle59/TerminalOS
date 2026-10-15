@@ -18,6 +18,10 @@ Ouvrir `index.html` dans un navigateur ou publier le dépôt avec GitHub Pages. 
 
 Les guillemets simples/doubles et l'échappement de base sont pris en charge pour découper les arguments. La navigation dans l'historique fonctionne avec les flèches haut/bas. Le système de fichiers et les variables exportées sont gardés en mémoire pendant la session de la page.
 
+## Mini-jeu CyberLab
+
+Ouvrez `hacking-game.html` pour jouer à un puzzle de déduction de code (4 chiffres distincts), avec tentatives limitées, indices, niveaux et journal de mission. Le jeu fonctionne localement dans le navigateur : aucune connexion réseau, aucune cible réelle et aucune commande de piratage n'est exécutée.
+
 ## Limites importantes
 
 TerminalOS reste une **simulation JavaScript**, pas un shell Unix/POSIX. Les commandes sont des implémentations pédagogiques et partielles :
