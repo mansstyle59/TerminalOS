@@ -1,21 +1,33 @@
 # TerminalOS
 
-Maquette mobile minimaliste inspirée des contrôles de fenêtre de macOS, avec un terminal fictif.
+Maquette web mobile minimaliste inspirée des contrôles de fenêtre de macOS, avec une console de démonstration en JavaScript.
 
-## Commandes de démonstration
+## Lancer la démo
 
-- `help` — afficher les commandes disponibles
-- `clear` — effacer la sortie
-- `date` — date locale
-- `whoami` — utilisateur fictif
-- `pwd` — chemin fictif
-- `ls` — fichiers de démonstration
-- `echo TEXTE` — afficher du texte
-- `uname` — système fictif
-- `neofetch` — résumé du système simulé
-- `open-source` — afficher les références open source
+Ouvrir `index.html` dans un navigateur ou publier le dépôt avec GitHub Pages. Touchez l'écran noir pour ouvrir le terminal.
 
-Touchez l'écran noir pour ouvrir la console. Les commandes rapides permettent de tester les exemples. L'historique de session se parcourt avec les flèches haut/bas.
+## Commandes simulées
+
+- `help`, `man commande` — aide générale et quelques pages de manuel
+- `clear`, `date`, `whoami`, `id`, `pwd`, `uname`, `neofetch`
+- `cd`, `ls [-la]`, `tree`, `find` — navigation dans une arborescence virtuelle
+- `cat`, `head`, `tail`, `wc`, `grep` — lecture et recherche dans les fichiers de démonstration
+- `touch`, `mkdir`, `rm [-r]` — modifications du système de fichiers virtuel
+- `echo`, `printf`, `env`, `export NOM=valeur`, `history`, `true`, `false`
+- `open-source` — affiche des projets open source à titre de référence
+
+Les guillemets simples/doubles et l'échappement de base sont pris en charge pour découper les arguments. La navigation dans l'historique fonctionne avec les flèches haut/bas. Le système de fichiers et les variables exportées sont gardés en mémoire pendant la session de la page.
+
+## Limites importantes
+
+TerminalOS reste une **simulation JavaScript**, pas un shell Unix/POSIX. Les commandes sont des implémentations pédagogiques et partielles :
+- aucun processus, programme ou binaire natif n'est lancé ;
+- aucune lecture/écriture des fichiers réels du téléphone, de l'ordinateur ou du serveur ;
+- les fichiers et dossiers sont fictifs, volatils et réinitialisés au rechargement ;
+- pas de pipes (`|`), redirections (`>`), substitutions, scripts shell, permissions réelles, liens symboliques, globbing complet ou codes de sortie compatibles POSIX ;
+- les options ne sont implémentées que lorsqu'elles sont explicitement prévues ; les résultats peuvent différer d'un vrai Unix ;
+- `grep` utilise les expressions régulières JavaScript, et non toutes les règles de GNU grep ;
+- cette démo n'est pas destinée à exécuter du code non fiable ni à remplacer un terminal système.
 
 ## Références open source
 
@@ -23,12 +35,8 @@ Touchez l'écran noir pour ouvrir la console. Les commandes rapides permettent d
 - [GNU Coreutils](https://www.gnu.org/software/coreutils/)
 - [Toybox](https://landley.net/toybox/)
 
-Ces projets sont présentés comme références ; aucun binaire n'est inclus ou exécuté par TerminalOS.
-
-## Sécurité et portée
-
-TerminalOS est une démo web autonome. Toutes les commandes sont simulées en JavaScript dans le navigateur : elles ne lancent pas de processus, ne lisent pas les fichiers du téléphone et ne modifient pas l'appareil.
+Ces projets sont **des références uniquement** : leur code et leurs binaires ne sont pas intégrés à TerminalOS.
 
 ## Déploiement
 
-Le workflow GitHub Actions de Pages est dans `.github/workflows/pages.yml`. Dans **Settings → Pages**, configure la source **GitHub Actions** si nécessaire, puis vérifie l’onglet **Actions** pour confirmer le résultat du déploiement.
+Le workflow GitHub Actions de Pages se trouve dans `.github/workflows/pages.yml`. Dans **Settings → Pages**, choisissez **GitHub Actions** comme source si nécessaire, puis vérifiez l'onglet **Actions** pour confirmer le déploiement.
