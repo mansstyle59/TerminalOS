@@ -66,40 +66,6 @@ a{color:#5e9e70}
 </section>
 <div class="notice" role="status" aria-live="polite"></div>
 </main>
-<script>
-(()=> {
-const consolePanel=document.getElementById('console'), hint=document.getElementById('hint');
-const output=document.getElementById('output'), input=document.getElementById('command-input');
-const form=document.getElementById('command-form'), notice=document.querySelector('.notice');
-let timer; const history=[]; let historyIndex=0;
-function showNotice(message){notice.textContent=message;notice.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>notice.classList.remove('show'),1500)}
-function openConsole(){consolePanel.classList.add('open');hint.style.display='none';input.focus({preventScroll:true})}
-function print(text,kind=''){const line=document.createElement('div');if(kind)line.className=kind;line.textContent=text;output.appendChild(line);output.scrollTop=output.scrollHeight}
-function run(raw){
-const command=raw.trim();if(!command)return;
-print('~ % '+command,'dim');
-const [name,...args]=command.split(/\s+/);const rest=args.join(' ');
-switch(name){
-case 'help': print('Commandes de démonstration disponibles:\n  help       afficher cette aide\n  clear      effacer l’écran\n  date       afficher la date locale\n  whoami     afficher l’utilisateur fictif\n  pwd        afficher le dossier fictif\n  ls         lister les fichiers de démonstration\n  echo TEXTE afficher un texte\n  uname      afficher le système fictif\n  neofetch   afficher les infos de TerminalOS\n  open-source afficher les projets open source de référence\n\nCes commandes sont simulées dans le navigateur.','accent');break;
-case 'clear':output.textContent='';break;
-case 'date':print(new Date().toString());break;
-case 'whoami':print('guest');break;
-case 'pwd':print('/home/guest');break;
-case 'ls':print('Documents/   Downloads/   README.md   .config/');break;
-case 'echo':print(rest);break;
-case 'uname':print('TerminalOS Demo 1.0 (simulation mobile)');break;
-case 'neofetch':print('  _______            TerminalOS\n /_  __/___ _____    OS: TerminalOS Demo\n  / / / __ `/ __ \\   Shell: demo-sh\n / / / /_/ / /_/ /   Mode: simulation\n/_/  \\__,_/\\__,_/    Commands: local mock only','accent');break;
-case 'open-source':print('Références open source (non intégrées comme moteur d’exécution):\nBusyBox  https://busybox.net/\nGNU Coreutils  https://www.gnu.org/software/coreutils/\nToybox  https://landley.net/toybox/\n\nTerminalOS ne lance aucun de ces binaires.','accent');break;
-default:print('Commande inconnue : '+name+'. Tapez help pour la liste.');}
-}
-document.querySelector('.canvas').addEventListener('click',e=>{if(!consolePanel.classList.contains('open')&&e.target===hint)openConsole()});
-form.addEventListener('submit',e=>{e.preventDefault();const cmd=input.value;history.push(cmd);historyIndex=history.length;run(cmd);input.value='';input.focus()});
-input.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();if(historyIndex>0)input.value=history[--historyIndex]||''}else if(e.key==='ArrowDown'){e.preventDefault();if(historyIndex<history.length-1)input.value=history[++historyIndex]||'';else{historyIndex=history.length;input.value=''}}});
-document.querySelectorAll('[data-command]').forEach(button=>button.addEventListener('click',()=>{openConsole();const cmd=button.dataset.command;run(cmd);input.focus()}));
-document.querySelector('[data-action="close"]').addEventListener('click',()=>{consolePanel.classList.remove('open');hint.style.display='flex';showNotice('TerminalOS — écran noir')});
-document.querySelector('[data-action="minimize"]').addEventListener('click',()=>{consolePanel.classList.remove('open');hint.style.display='flex';showNotice('Console réduite')});
-document.querySelector('[data-action="fullscreen"]').addEventListener('click',async()=>{try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else if(document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen()}catch(_){showNotice('Plein écran contrôlé par le navigateur')}});
-})();
-</script>
+<script src="./terminal.js"></script>
 </body>
 </html>
