@@ -6,42 +6,99 @@
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="TerminalOS — une maquette mobile minimaliste inspirée des fenêtres macOS.">
+<meta name="description" content="TerminalOS — terminal mobile fictif avec commandes de démonstration open source.">
 <title>TerminalOS</title>
 <style>
-:root{color-scheme:dark;--red:#ff5f57;--yellow:#febc2e;--green:#28c840}
+:root{color-scheme:dark;--red:#ff5f57;--yellow:#febc2e;--green:#28c840;--ink:#c8f7d2;--muted:#718078}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;overscroll-behavior:none}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;overscroll-behavior:none;color:#fff}
 .app{position:fixed;inset:0;background:#000;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 16px);display:flex;flex-direction:column}
 .titlebar{height:42px;display:flex;align-items:center;gap:11px;flex-shrink:0}
 .dot{width:13px;height:13px;border:0;border-radius:50%;padding:0;appearance:none;cursor:pointer;transition:transform .14s ease;box-shadow:inset 0 0 0 1px #00000010}
-.dot:active{transform:scale(.88)}
-.dot:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.dot:active{transform:scale(.88)}.dot:focus-visible{outline:2px solid #fff;outline-offset:4px}
 .red{background:var(--red)}.yellow{background:var(--yellow)}.green{background:var(--green)}
-.canvas{flex:1;min-height:0;background:#000}
-.notice{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 60px);transform:translate(-50%,-8px);padding:9px 13px;border:1px solid #272727;border-radius:10px;background:#111;color:#aaa;font:12px/1.3 -apple-system,BlinkMacSystemFont,sans-serif;opacity:0;pointer-events:none;white-space:nowrap;transition:opacity .18s,transform .18s}
+.canvas{flex:1;min-height:0;background:#000;position:relative;display:flex;flex-direction:column;justify-content:flex-end}
+.hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#161616;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;pointer-events:none;user-select:none}
+.console{position:relative;display:none;flex-direction:column;gap:12px;padding:14px 0 4px;max-height:60%;min-height:0}
+.console.open{display:flex}
+.output{overflow:auto;max-height:42vh;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}
+.output .dim{color:var(--muted)}.output .accent{color:#28c840}
+.prompt{display:flex;align-items:center;gap:8px;border-top:1px solid #1b1b1b;padding-top:12px}
+.prompt label{color:#28c840;font:14px ui-monospace,monospace}
+.prompt input{min-width:0;flex:1;background:transparent;border:0;outline:none;color:#f2fff5;font:14px ui-monospace,SFMono-Regular,Menlo,monospace;caret-color:#28c840}
+.prompt input::placeholder{color:#505850}
+.actions{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.actions button{flex:0 0 auto;background:#090909;border:1px solid #252525;border-radius:999px;color:#a7b2aa;padding:7px 11px;font:12px ui-monospace,monospace}
+.actions button:active{border-color:#28c840;color:#28c840}
+.notice{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 60px);transform:translate(-50%,-8px);padding:9px 13px;border:1px solid #272727;border-radius:10px;background:#111;color:#aaa;font:12px/1.3 -apple-system,BlinkMacSystemFont,sans-serif;opacity:0;pointer-events:none;white-space:nowrap;transition:opacity .18s,transform .18s;z-index:3}
 .notice.show{opacity:1;transform:translate(-50%,0)}
-@media(min-width:600px){.app{padding:22px}.titlebar{height:36px}.dot{width:12px;height:12px}}
+.footer{font:10px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;color:#292929;text-align:center;padding-top:6px}
+a{color:#5e9e70}
+@media(min-width:600px){.app{padding:22px}.titlebar{height:36px}.dot{width:12px;height:12px}.console{max-width:850px;width:100%;align-self:center}.output{max-height:45vh}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <main class="app" aria-label="TerminalOS">
 <header class="titlebar" aria-label="Commandes de fenêtre style macOS">
-<button class="dot red" aria-label="Fermer la fenêtre" title="Fermer" data-action="close"></button>
-<button class="dot yellow" aria-label="Réduire la fenêtre" title="Réduire" data-action="minimize"></button>
+<button class="dot red" aria-label="Fermer la console" title="Fermer" data-action="close"></button>
+<button class="dot yellow" aria-label="Réduire la console" title="Réduire" data-action="minimize"></button>
 <button class="dot green" aria-label="Plein écran" title="Plein écran" data-action="fullscreen"></button>
 </header>
-<section class="canvas" aria-label="Écran noir TerminalOS"></section>
+<section class="canvas" aria-label="Écran TerminalOS">
+<div class="hint" id="hint">TOUCHER POUR OUVRIR LE TERMINAL</div>
+<div class="console" id="console">
+<div class="output" id="output" aria-live="polite"></div>
+<form class="prompt" id="command-form">
+<label for="command-input">~ %</label>
+<input id="command-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="saisir une commande…" aria-label="Commande fictive">
+</form>
+<div class="actions" aria-label="Commandes rapides">
+<button type="button" data-command="help">help</button>
+<button type="button" data-command="neofetch">neofetch</button>
+<button type="button" data-command="ls">ls</button>
+<button type="button" data-command="date">date</button>
+<button type="button" data-command="clear">clear</button>
+</div>
+<div class="footer">MODE DÉMO · AUCUNE COMMANDE SYSTÈME EXÉCUTÉE</div>
+</div>
+</section>
 <div class="notice" role="status" aria-live="polite"></div>
 </main>
 <script>
-(()=>{const notice=document.querySelector('.notice');let timer;
-function show(message){notice.textContent=message;notice.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>notice.classList.remove('show'),1500)}
-document.querySelector('[data-action="close"]').addEventListener('click',()=>show('TerminalOS — fenêtre fictive'));
-document.querySelector('[data-action="minimize"]').addEventListener('click',()=>show('Réduction simulée'));
-document.querySelector('[data-action="fullscreen"]').addEventListener('click',async()=>{try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else if(document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen()}catch(_){show('Plein écran contrôlé par le navigateur')}});
+(()=> {
+const consolePanel=document.getElementById('console'), hint=document.getElementById('hint');
+const output=document.getElementById('output'), input=document.getElementById('command-input');
+const form=document.getElementById('command-form'), notice=document.querySelector('.notice');
+let timer; const history=[]; let historyIndex=0;
+function showNotice(message){notice.textContent=message;notice.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>notice.classList.remove('show'),1500)}
+function openConsole(){consolePanel.classList.add('open');hint.style.display='none';input.focus({preventScroll:true})}
+function print(text,kind=''){const line=document.createElement('div');if(kind)line.className=kind;line.textContent=text;output.appendChild(line);output.scrollTop=output.scrollHeight}
+function run(raw){
+const command=raw.trim();if(!command)return;
+print('~ % '+command,'dim');
+const [name,...args]=command.split(/\s+/);const rest=args.join(' ');
+switch(name){
+case 'help': print('Commandes de démonstration disponibles:\n  help       afficher cette aide\n  clear      effacer l’écran\n  date       afficher la date locale\n  whoami     afficher l’utilisateur fictif\n  pwd        afficher le dossier fictif\n  ls         lister les fichiers de démonstration\n  echo TEXTE afficher un texte\n  uname      afficher le système fictif\n  neofetch   afficher les infos de TerminalOS\n  open-source afficher les projets open source de référence\n\nCes commandes sont simulées dans le navigateur.','accent');break;
+case 'clear':output.textContent='';break;
+case 'date':print(new Date().toString());break;
+case 'whoami':print('guest');break;
+case 'pwd':print('/home/guest');break;
+case 'ls':print('Documents/   Downloads/   README.md   .config/');break;
+case 'echo':print(rest);break;
+case 'uname':print('TerminalOS Demo 1.0 (simulation mobile)');break;
+case 'neofetch':print('  _______            TerminalOS\n /_  __/___ _____    OS: TerminalOS Demo\n  / / / __ `/ __ \\   Shell: demo-sh\n / / / /_/ / /_/ /   Mode: simulation\n/_/  \\__,_/\\__,_/    Commands: local mock only','accent');break;
+case 'open-source':print('Références open source (non intégrées comme moteur d’exécution):\nBusyBox  https://busybox.net/\nGNU Coreutils  https://www.gnu.org/software/coreutils/\nToybox  https://landley.net/toybox/\n\nTerminalOS ne lance aucun de ces binaires.','accent');break;
+default:print('Commande inconnue : '+name+'. Tapez help pour la liste.');}
+}
+document.querySelector('.canvas').addEventListener('click',e=>{if(!consolePanel.classList.contains('open')&&e.target===hint)openConsole()});
+form.addEventListener('submit',e=>{e.preventDefault();const cmd=input.value;history.push(cmd);historyIndex=history.length;run(cmd);input.value='';input.focus()});
+input.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();if(historyIndex>0)input.value=history[--historyIndex]||''}else if(e.key==='ArrowDown'){e.preventDefault();if(historyIndex<history.length-1)input.value=history[++historyIndex]||'';else{historyIndex=history.length;input.value=''}}});
+document.querySelectorAll('[data-command]').forEach(button=>button.addEventListener('click',()=>{openConsole();const cmd=button.dataset.command;run(cmd);input.focus()}));
+document.querySelector('[data-action="close"]').addEventListener('click',()=>{consolePanel.classList.remove('open');hint.style.display='flex';showNotice('TerminalOS — écran noir')});
+document.querySelector('[data-action="minimize"]').addEventListener('click',()=>{consolePanel.classList.remove('open');hint.style.display='flex';showNotice('Console réduite')});
+document.querySelector('[data-action="fullscreen"]').addEventListener('click',async()=>{try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else if(document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen()}catch(_){showNotice('Plein écran contrôlé par le navigateur')}});
 })();
 </script>
 </body>
